@@ -1,14 +1,10 @@
 {
-	"show_video": true,
+	"show_video": false,
 	"use_dropbox": false,
-	"dropbox_access_token": "YOUR_DROPBOX_KEY",
-	"dropbox_base_path": "YOUR_DROPBOX_PATH",
-	"min_upload_seconds": 3.0,
-	"min_motion_frames": 8,
 	"camera_warmup_time": 2,
 	"delta_thresh": 9,
 	"resolution": [640, 480],
 	"fps": 60,
-	"rotation": 180,
+	"rotation": 0,
 	"min_area": 6500
 }
