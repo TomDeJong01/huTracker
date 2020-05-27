@@ -1,10 +1,12 @@
 {
-	"show_video": false,
+	"show_video": true,
 	"use_dropbox": false,
 	"camera_warmup_time": 2,
 	"delta_thresh": 9,
 	"resolution": [640, 480],
 	"fps": 60,
 	"rotation": 0,
-	"min_area": 6500
+	"min_area": 6500,
+	"prototxt": "mobilenet_ssd/MobileNetSSD_deploy.prototxt",
+	"model":"mobilenet_ssd/MobileNetSSD_deploy.caffemodel"
 }
