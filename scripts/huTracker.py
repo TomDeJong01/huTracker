@@ -84,14 +84,16 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
         (x, y, w, h) = cv2.boundingRect(c)
         centerX = x + w/2;
         centery = y + h/2;
-        # cv2.rectangle(frame, (int(x + int((w/4))), int(y + (w/4))), (int(x + (w/2)), int(y + (h/2))), (0, 255, 0), 2)
+
+        cv2.rectangle(frame, (int(x + int((w/4))), int(y + (w/4))), (int(x + (w/2)), int(y + (h/2))), (0, 255, 0), 2)
+        # cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
         if frameNr > recObject['lf'] + 3:
             #nieuw object
             recObject = {"id": recObject['id'] + 1, "x": x, "y": y, "w": w, "h": h, "lf": frameNr, "tf": 0}
-            yList = [y]
+            # yList = [y]
         else:
-            yList.append(y)
+            # yList.append(y)
             #update object
             recObject = {"id": recObject['id'], "x": x, "y": y, "w": w, "h": h, "lf": frameNr, "tf": recObject["tf"] + 1}
         # print("frame:" + str(frameNr) +
