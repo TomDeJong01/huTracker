@@ -1,17 +1,19 @@
 from picamera.array import PiRGBArray
 from picamera import PiCamera
+import requests
 import argparse
 import imutils
 import json
 import time
 import cv2
 
+#json params
 ap = argparse.ArgumentParser()
 ap.add_argument("-c", "--conf", required=True, help="conf.json")
 args = vars(ap.parse_args())
 conf = json.load(open(args["conf"]))
-client = None
 
+#init camera
 camera = PiCamera()
 camera.resolution = tuple(conf["resolution"])
 camera.framerate = conf["fps"]
@@ -20,18 +22,50 @@ rawCapture = PiRGBArray(camera, size=tuple(conf["resolution"]))
 print("[INFO] warming up...")
 time.sleep(conf["camera_warmup_time"])
 avg = None
+
+#init application vars
 motionCounter = 0
 frameNr = 0
 recObject = {"id": 0, "x": 0, "y": 0, "w": 0, "h": 0, "lf": 0, "tf": 0}
-trackableObjects = {}
 yList = []
+
+
+def setLocalVars(json):
+    conf["title"] = json["title"]
+    conf["maxPeopleCount"] = json["maxPeopleCount"]
+    conf["amountOfPresentPeople"] = json["amountOfPresentPeople"]
+
+
+def getVars():
+    r = requests.get(str(conf["apiUrl"]) + "area/" + str(conf["id"]))
+    # print("print getVars")
+    # print(r.status_code, r.reason)
+    return r.json()
+
+
+def count(action):
+    r = requests.post(str(conf["apiUrl"]) + "area/" + str(conf["id"]) + "/"+action)
+    print("print Action - " + str(action))
+    # print(r.status_code, r.reason)
 
 
 def countPersen(yList):
     print("NEW LIST PRINT")
-    for i in yList:
-        print(i)
-        print("\t")
+    for i in range(len(yList)):
+        if yList[i] == yList[i +1]:
+            continue
+        if yList[i] < yList[i + 1]:
+            count("remove")
+            conf["amountOfPresentPeople"] = getVars()["amountOfPresentPeople"]
+            print("new count: " + str(conf["amountOfPresentPeople"] ))
+            yList = []
+            break
+        else:
+            count("add")
+            newTotal = getVars()["amountOfPresentPeople"]
+            print("new count: " + str(newTotal))
+            yList = []
+            break
 
 
 for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
@@ -54,6 +88,14 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
     cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
 
+    if frameNr > recObject['lf'] + 2:
+        # nieuw object
+        if recObject['id'] > 9999:
+            recObject['id'] = 1
+        if len(yList) > 1:
+            countPersen(yList)
+            yList=[]
+
     for c in cnts:
         if cv2.contourArea(c) < conf["min_area"]:
             continue
@@ -63,18 +105,11 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
         if y == 0:
             continue
 
-        if frameNr > recObject['lf'] + 3:
-            #nieuw object
-            if recObject['id'] > 9999:
-                recObject['id'] = 1
-            if len(yList) > 1:
-                countPersen(yList)
-
             recObject = {"id": recObject['id'] + 1, "x": x, "y": y, "w": w, "h": h, "lf": frameNr, "tf": 0}
-            yList = [{"y:": y, "y+:": y+h}]
+            yList = [y]
         else:
             recObject = {"id": recObject['id'], "x": x, "y": y, "w": w, "h": h, "lf": frameNr, "tf": recObject["tf"] + 1}
-            yList.append({"y:": y, "y+:": y+h})
+            yList.append(y)
             #update object
 
     if conf["show_video"]:

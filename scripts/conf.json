@@ -4,8 +4,11 @@
 	"delta_thresh": 10,
 	"resolution": [640, 480],
 	"fps": 60,
-	"rotation": 0,
+	"rotation": 180,
 	"min_area": 9000,
-	"prototxt": "mobilenet_ssd/MobileNetSSD_deploy.prototxt",
-	"model":"mobilenet_ssd/MobileNetSSD_deploy.caffemodel"
+	"apiUrl": "http://192.168.178.33:5000/api/",
+	"id": "66ee595b-1a2d-41f6-afc5-1f1ea39adceb",
+    "title": "kamer",
+    "maxPeopleCount": 20,
+    "amountOfPresentPeople": 0
 }
