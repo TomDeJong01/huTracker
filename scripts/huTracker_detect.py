@@ -24,17 +24,19 @@ motionCounter = 0
 frameNr = 0
 recObject = {"id": 0, "x": 0, "y": 0, "w": 0, "h": 0, "lf": 0, "tf": 0}
 trackableObjects = {}
-rects = []
+yList = []
 
 
 def countPersen(yList):
-    print(str(len(yList)))
+    print("NEW LIST PRINT")
+    for i in yList:
+        print(i)
+        print("\t")
 
 
 for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     frameNr += 1
     frame = f.array
-    text = "Unoccupied"
     frame = imutils.resize(frame, width=500)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (21, 21), 0)
@@ -56,7 +58,6 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
         if cv2.contourArea(c) < conf["min_area"]:
             continue
         (x, y, w, h) = cv2.boundingRect(c)
-        centery = y + h/2;
 
         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
         if y == 0:
@@ -64,17 +65,17 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
 
         if frameNr > recObject['lf'] + 3:
             #nieuw object
-            if recObject['id'] == 9999:
+            if recObject['id'] > 9999:
                 recObject['id'] = 1
             if len(yList) > 1:
                 countPersen(yList)
 
             recObject = {"id": recObject['id'] + 1, "x": x, "y": y, "w": w, "h": h, "lf": frameNr, "tf": 0}
-            yList = [centery]
+            yList = [{"y:": y, "y+:": y+h}]
         else:
-            yList.append(centery)
-            #update object
             recObject = {"id": recObject['id'], "x": x, "y": y, "w": w, "h": h, "lf": frameNr, "tf": recObject["tf"] + 1}
+            yList.append({"y:": y, "y+:": y+h})
+            #update object
 
     if conf["show_video"]:
         cv2.imshow("Security Feed", frame)
