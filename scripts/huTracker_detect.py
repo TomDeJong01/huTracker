@@ -55,6 +55,7 @@ def count(action):
 
 def countPersen(yList):
     print(" ")
+    print(yList)
     for i in range(len(yList)):
         if i + 1 != len(yList):
             if yList[i] == yList[i + 1]:
@@ -103,11 +104,7 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
         lastFrame = frameNr
 
         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        if y == 0:
-            yList = [y]
-            continue
-        else:
-            yList.append(y)
+        yList.append(y)
 
     if conf["show_video"]:
         cv2.imshow("Security Feed", frame)
