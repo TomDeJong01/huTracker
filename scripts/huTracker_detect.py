@@ -79,7 +79,7 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
     cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
 
-    if frameNr > lastFrame + 2 and len(yList) > 1:
+    if frameNr > lastFrame + conf['buffer_frames'] and len(yList) > 1:
         countPersen(yList)
         yList = []
 
