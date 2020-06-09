@@ -7,13 +7,11 @@ import json
 import time
 import cv2
 
-
 # json params
 ap = argparse.ArgumentParser()
 ap.add_argument("-c", "--conf", required=True, help="conf.json")
 args = vars(ap.parse_args())
 conf = json.load(open(args["conf"]))
-
 
 # init camera
 camera = PiCamera()
@@ -25,11 +23,8 @@ print("[INFO] warming up...")
 time.sleep(conf["camera_warmup_time"])
 avg = None
 
-
 # init application vars
-motionCounter = 0
 frameNr = 0
-recObject = {"id": 0, "x": 0, "y": 0, "w": 0, "h": 0, "lf": 0, "tf": 0}
 lastFrame = 0
 yList = []
 
@@ -42,34 +37,25 @@ def setLocalVars(json):
 
 def getVars():
     r = requests.get(str(conf["apiUrl"]) + "area/" + str(conf["id"]))
-    # print("print getVars")
-    # print(r.status_code, r.reason)
     return r.json()
 
 
 def count(action):
-    r = requests.post(str(conf["apiUrl"]) + "area/" + str(conf["id"]) + "/"+action)
+    requests.post(str(conf["apiUrl"]) + "area/" + str(conf["id"]) + "/"+action)
     print("print Action - " + str(action))
-    # print(r.status_code, r.reason)
 
 
 def countPersen(yList):
-    print(" ")
+    # print(" ")
     print(yList)
-    for i in range(len(yList)):
-        if i + 1 != len(yList):
-            if yList[i] == yList[i + 1]:
-                continue
-            if yList[i] < yList[i + 1]:
-                count("remove")
-                conf["amountOfPresentPeople"] = getVars()["amountOfPresentPeople"]
-                print("new count: " + str(conf["amountOfPresentPeople"] ))
-                break
-            else:
-                count("add")
-                conf["amountOfPresentPeople"] = getVars()["amountOfPresentPeople"]
-                print("new count: " + str(conf["amountOfPresentPeople"]))
-                break
+    if yList[0] > yList[-1]:
+        count("add")
+        conf["amountOfPresentPeople"] += 1
+        print("new count: " + str(conf["amountOfPresentPeople"]))
+    else:
+        count("remove")
+        conf["amountOfPresentPeople"] -= 1
+        print("new count: " + str(conf["amountOfPresentPeople"]))
 
 
 for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
