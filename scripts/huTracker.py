@@ -12,6 +12,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-c", "--conf", required=True, help="conf.json")
 args = vars(ap.parse_args())
 
+#create json object conf
 local_json_file = open(args["conf"], "r")
 conf = json.load(local_json_file)
 local_json_file.close()
@@ -60,19 +61,14 @@ def getVars():
         return False
 
 
-def count(action):
-    requests.post(conf["apiUrl"] + str(conf["id"]) + "/"+action)
-    print("print Action - " + str(action))
-
-
 def countPersen(yList):
     print(yList)
     if yList[0] > yList[-1]:
-        count("add")
+        requests.post(conf["apiUrl"] + str(conf["id"]) + "/add")
         conf["AmountOfPresentPeople"] += 1
         print("new count: " + str(conf["AmountOfPresentPeople"]))
     else:
-        count("remove")
+        requests.post(conf["apiUrl"] + str(conf["id"]) + "/remove")
         conf["AmountOfPresentPeople"] -= 1
         print("new count: " + str(conf["AmountOfPresentPeople"]))
 
@@ -119,8 +115,6 @@ def mainLoop():
             y_list.append(y)
             key = cv2.waitKey(1)
 
-        if cv2.waitKey(1) & 0xFF == ord("t"):
-            print("t is pressed")
         if conf["show_video"]:
             cv2.imshow("Security Feed", frame)
             key = cv2.waitKey(1) & 0xFF
