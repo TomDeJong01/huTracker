@@ -1,6 +1,3 @@
-import time
-from datetime import timedelta, datetime
-
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 import requests
@@ -29,7 +26,7 @@ rawCapture = PiRGBArray(camera, size=tuple(conf["resolution"]))
 time.sleep(conf["camera_warmup_time"])
 
 
-def updateJson():
+def update_json():
     json_write = open(args["conf"], "w")
     json.dump(conf, json_write)
     json_write.close()
@@ -46,17 +43,17 @@ def register(name, maxPeopleCount):
     conf["title"] = name
     conf["maxPeopleCount"] = int(maxPeopleCount)
     conf["AmountOfPresentPeople"] = 0
-    updateJson()
+    update_json()
 
 
-def setLocalVars(json):
+def set_local_conf(json):
     conf["title"] = json["title"]
     conf["maxPeopleCount"] = json["maxPeopleCount"]
     conf["AmountOfPresentPeople"] = json["amountOfPresentPeople"]
-    updateJson()
+    update_json()
 
 
-def getVars():
+def sync_get():
     r = requests.get(conf["apiUrl"] + str(conf["id"]))
     if r.status_code == 200:
         return r.json()
@@ -64,20 +61,20 @@ def getVars():
         return False
 
 
-def countPersen(y_list):
+def count_persen(y_list):
     print(y_list)
     # print("frames: " + str(len(y_list)) + "\ntime: " + str((end_time - start_time) / 1000000))
     if y_list[0] > y_list[-1]:
         requests.post(conf["apiUrl"] + str(conf["id"]) + "/add")
         conf["AmountOfPresentPeople"] += 1
-        print("new count: " + str(conf["AmountOfPresentPeople"]))
+        print("add - new count: " + str(conf["AmountOfPresentPeople"]))
     else:
         requests.post(conf["apiUrl"] + str(conf["id"]) + "/remove")
         conf["AmountOfPresentPeople"] -= 1
-        print("new count: " + str(conf["AmountOfPresentPeople"]))
+        print("remove - new count: " + str(conf["AmountOfPresentPeople"]))
 
 
-def mainLoop():
+def main_loop():
     # init application vars
     frame_nr = 0
     last_frame = 0
@@ -107,7 +104,7 @@ def mainLoop():
 
         if frame_nr > last_frame + conf['buffer_frames'] and len(y_list) > 1:
             # countPersen(y_list, start_time, end_time)
-            countPersen(y_list)
+            count_persen(y_list)
             y_list = []
 
         for c in cnts:
@@ -136,10 +133,10 @@ def mainLoop():
 
 if __name__ == "__main__":
     if conf["id"]:
-        json_vars = getVars()
+        json_vars = sync_get()
         if json_vars:
-            setLocalVars(json_vars)
-            mainLoop()
+            set_local_conf(json_vars)
+            main_loop()
         else:
             print("kan geen contact maken met de database")
     else:
@@ -149,4 +146,4 @@ if __name__ == "__main__":
         while not maxPeople.isnumeric() or int(maxPeople) < 0:
             maxPeople = input("max number of people in room:")
         register(title, maxPeople)
-        mainLoop()
+        main_loop()
