@@ -3,13 +3,10 @@
 	"camera_warmup_time": 2,
 	"delta_thresh": 10,
 	"resolution": [640, 480],
-	"fps": 60,
-	"rotation": 180,
-	"min_area": 9000,
-	"buffer_frames": 2,
+	"fps": 60, "rotation": 180,
+	"min_area": 9000, "buffer_frames": 2,
 	"apiUrl": "http://192.168.178.33:5000/api/area/",
-	"id": "",
-	"title": "Pi",
-	"maxPeopleCount": 14,
-	"AmountOfPresentPeople": 0
+	"id": "523cc0ae-05f9-4e3b-97df-2597aaf4e8fa",
+	"title": "Pi", "maxPeopleCount": 2,
+	"AmountOfPresentPeople": 3
 }

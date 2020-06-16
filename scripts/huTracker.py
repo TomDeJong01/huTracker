@@ -1,3 +1,6 @@
+import time
+from datetime import timedelta, datetime
+
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 import requests
@@ -61,9 +64,10 @@ def getVars():
         return False
 
 
-def countPersen(yList):
-    print(yList)
-    if yList[0] > yList[-1]:
+def countPersen(y_list):
+    print(y_list)
+    # print("frames: " + str(len(y_list)) + "\ntime: " + str((end_time - start_time) / 1000000))
+    if y_list[0] > y_list[-1]:
         requests.post(conf["apiUrl"] + str(conf["id"]) + "/add")
         conf["AmountOfPresentPeople"] += 1
         print("new count: " + str(conf["AmountOfPresentPeople"]))
@@ -102,6 +106,7 @@ def mainLoop():
         cnts = imutils.grab_contours(cnts)
 
         if frame_nr > last_frame + conf['buffer_frames'] and len(y_list) > 1:
+            # countPersen(y_list, start_time, end_time)
             countPersen(y_list)
             y_list = []
 
@@ -110,16 +115,21 @@ def mainLoop():
                 continue
             (x, y, w, h) = cv2.boundingRect(c)
             last_frame = frame_nr
-
-            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-            y_list.append(y)
-            key = cv2.waitKey(1)
+            y_list.append((y+(y+h))/2)
+            # if len(y_list) == 1:
+            #     # start_time = int(round(time.time() * 1000))
+            #     # start_time = datetime.now().microsecond
+            #     start_time = time.time_ns()
+            # else:
+            #     # end_time = int(round(time.time() * 1000))
+            #     # end_time = datetime.now().microsecond
+            #     end_time = time.time_ns()
 
         if conf["show_video"]:
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.imshow("Security Feed", frame)
             key = cv2.waitKey(1) & 0xFF
             if key == ord("q"):
-                updateJson()
                 break
         rawCapture.truncate(0)
 
